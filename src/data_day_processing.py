@@ -5,6 +5,8 @@ import re
 import logging
 from datetime import datetime
 
+os.chdir(os.path.normpath(os.getcwd() + os.sep + os.pardir))
+
 # Setup Logging
 now = datetime.now()
 date_time = now.strftime("%Y%m%d_%H%M%S")
@@ -24,15 +26,20 @@ def data_day_processing(Year,Month,Day):
         for i in paths_PPPP:
             st = obspy.read("data/"+Year+"/"+Month+"/"+Day+"/"+i)
             st = st.select(component='Z')
-            if len(st)==1:
-                if k == 1:
-                    st_final = st[0].resample(sampling_rate = 100)
+            if st[0].stats.npts==720000:
+
+                if len(st)==1:
+                    if k == 1:
+                        st_final = st[0].resample(sampling_rate = 100)
+                    else:
+                        st_final = st_final + st[0].resample(sampling_rate = 100)
+                    k = k+1
                 else:
-                    st_final = st_final + st[0].resample(sampling_rate = 100)
-                k = k+1
+                    bandera = False
+                    logging.error("No hay componente Z en el archivo "+i)
             else:
                 bandera = False
-                logging.error("No hay componente Z en el archivo "+i)
+                logging.error("El archivo "+i+" está incompleto")
         
         if bandera:
             st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".sac", format = 'sac')   
