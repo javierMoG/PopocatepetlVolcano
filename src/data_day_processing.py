@@ -5,17 +5,10 @@ import re
 import logging
 from datetime import datetime
 
-os.chdir(os.path.normpath(os.getcwd() + os.sep + os.pardir))
+#os.chdir(os.path.normpath(os.getcwd() + os.sep + os.pardir))
+os.chdir(os.getcwd()+'\\PopocatepetlVolcano')
 
-# Setup Logging
-now = datetime.now()
-date_time = now.strftime("%Y%m%d_%H%M%S")
-log_prep_file_name = f"logs/{date_time}_prep.log"
-logging.basicConfig(
-    filename=log_prep_file_name,
-    level=logging.DEBUG,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
+
 
 def data_day_processing(Year,Month,Day):
     paths = os.listdir("data/"+Year+"/"+Month+"/"+Day)
@@ -39,18 +32,28 @@ def data_day_processing(Year,Month,Day):
                     logging.error("No hay componente Z en el archivo "+i)
             else:
                 bandera = False
-                logging.error("El archivo "+i+" está incompleto")
+                logging.error("El archivo "+i+" esta incompleto")
         
         if bandera:
             st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".sac", format = 'sac')   
     else:
-        logging.error("El día no está completo en el día "+Year+"_"+Month+"_"+Day)
+        logging.error("El dia no esta completo en el dia "+Year+"_"+Month+"_"+Day)
 
 
 
             
 
 for Year in ['2022','2023']:
+    # Setup Logging
+    now = datetime.now()
+    date_time = now.strftime("%Y%m%d_%H%M%S")
+    log_prep_file_name = f"logs/{date_time}_prep.log"
+    logging.basicConfig(
+        filename=log_prep_file_name,
+        level=logging.DEBUG,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s')
+    
     Months = os.listdir("data/"+Year) 
     for month in Months:
         Days = os.listdir("data/"+Year+"/"+month)
