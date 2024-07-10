@@ -19,9 +19,8 @@ def data_day_processing(Year,Month,Day):
         for i in paths_PPPP:
             st = obspy.read("data/"+Year+"/"+Month+"/"+Day+"/"+i)
             st = st.select(component='Z')
-            if st[0].stats.npts==720000:
-
-                if len(st)==1:
+            if len(st)==1:
+                if st[0].stats.npts==720000:
                     if k == 1:
                         st_final = st[0].resample(sampling_rate = 100)
                     else:
@@ -29,10 +28,11 @@ def data_day_processing(Year,Month,Day):
                     k = k+1
                 else:
                     bandera = False
-                    logging.error("No hay componente Z en el archivo "+i)
+                    logging.error("El archivo "+i+" esta incompleto")
             else:
                 bandera = False
-                logging.error("El archivo "+i+" esta incompleto")
+                logging.error("No hay componente Z en el archivo "+i)
+
         
         if bandera:
             st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".sac", format = 'sac')   
@@ -43,7 +43,7 @@ def data_day_processing(Year,Month,Day):
 
             
 
-for Year in ['2022','2023']:
+for Year in ['2023']:
     # Setup Logging
     now = datetime.now()
     date_time = now.strftime("%Y%m%d_%H%M%S")
