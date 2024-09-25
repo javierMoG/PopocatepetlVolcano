@@ -37,13 +37,35 @@ def data_day_processing(Year,Month,Day):
         if bandera:
             st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".sac", format = 'sac')   
     else:
-        logging.error("El dia no esta completo en el dia "+Year+"_"+Month+"_"+Day)
+        #logging.error("El dia no esta completo en el dia "+Year+"_"+Month+"_"+Day)
+        k = 1
+        for i in paths_PPPP:
+            st = obspy.read("data/"+Year+"/"+Month+"/"+Day+"/"+i)
+            st = st.select(component='Z')
+            if len(st)>=1:
+                if st[0].stats.npts==720000:
+                    if k == 1:
+                        st_final = st[0].resample(sampling_rate = 100)
+                    else:
+                        #st_final = st_final + st[0].resample(sampling_rate = 100)
+                        st_final = obspy.Trace.__add__(self=st_final, trace=st[0].resample(sampling_rate = 100) , fill_value='0')
+                    k = k+1
+                else:
+                    bandera = False
+                    logging.error("El archivo "+i+" esta incompleto")
+            else:
+                bandera = False
+                logging.error("No hay componente Z en el archivo "+i)
+
+        
+        if bandera:
+            st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".sac", format = 'sac')   
 
 
 
             
 
-for Year in ['2023']:
+for Year in ['2022','2023']:
     # Setup Logging
     now = datetime.now()
     date_time = now.strftime("%Y%m%d_%H%M%S")
