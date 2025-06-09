@@ -10,7 +10,7 @@ from datetime import datetime
 import numpy as np
 
 #os.chdir(os.path.normpath(os.getcwd() + os.sep + os.pardir))
-os.chdir(os.getcwd()+'\\PopocatepetlVolcano')
+os.chdir("D:\\Popocatepetl")
 
 def interpolate_hour(trace_z):
     """
@@ -231,12 +231,12 @@ def data_day_processing(Year, Month, Day):
                         i = i+1
                     else:
                         bandera = False
-                        logging.error("El archivo "+i+" esta incompleto")
+                        logging.error("El archivo "+paths_PPPP[i]+" esta incompleto")
                 else:
                     bandera = False
-                    logging.error("No hay componente Z en el archivo "+i)
+                    logging.error("No hay componente Z en el archivo "+paths_PPPP[i])
 
-            if ~bandera:
+            if bandera == False:
                 st_final = complete_day(Year, Month, Day, paths_PPPP)
     
             st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".seed", format = 'mseed') 
@@ -249,11 +249,11 @@ def data_day_processing(Year, Month, Day):
         st_final = create_empty_day(Year, Month, Day)
         st_final.write("data/clean_data/"+Year+"/CN_PPPP_HHZ_"+Year+"_"+Month+"_"+Day+".seed", format = 'mseed') 
 
-for Year in ['2022','2023']:
+for Year in ['2022','2023','2024']:
     # Setup Logging
     now = datetime.now()
     date_time = now.strftime("%Y%m%d_%H%M%S")
-    log_prep_file_name = f"logs/{date_time}_prep.log"
+    log_prep_file_name = f"C:\\Users\\javie\\OneDrive - INSTITUTO TECNOLOGICO AUTONOMO DE MEXICO\\MaestriaEnCienciaDeDatos\\EstanciaDeInvestigacion\\Popocatepelt\\PopocatepetlVolcano\\logs/{date_time}_prep.log"
     logging.basicConfig(
         filename=log_prep_file_name,
         level=logging.DEBUG,
