@@ -140,9 +140,8 @@ def complete_day(Year, Month, Day, source_path, paths_PPPP):
                     st_final2.data = st_final2.data.astype(np.float64)  # Ensure data is float64
                     st_final = obspy.Trace.__add__(self=st_final, trace=st_final2, fill_value=0.0)
                 k = k + 1
-            else:
-                st_final = create_empty_day(Year, Month, Day)
 
+    # Ensure the trace starts at 00:00:00 UTC
     if st_final.stats.starttime.hour != 0:
         array = np.zeros(360000, dtype=np.float64)  # Ensure data is float64
         st_start = obspy.core.trace.Trace(data=array)
@@ -153,6 +152,7 @@ def complete_day(Year, Month, Day, source_path, paths_PPPP):
 
         st_final = obspy.Trace.__add__(self=st_start, trace=st_final, fill_value=0.0)
 
+    # Ensure the trace ends at 23:59:59.99 UTC
     if st_final.stats.endtime.hour != 23:
         array = np.zeros(360000, dtype=np.float64)  # Ensure data is float64
         st_end = obspy.core.trace.Trace(data=array)
@@ -259,7 +259,7 @@ def data_day_processing(Year, Month, Day, source_path, destination_path):
 
     st_final.write(destination_path + "/" + Year + "/CN_PPPP_HHZ_" + Year + "_" + Month + "_" + Day + ".seed", format="MSEED") 
 
-def process_date_range(start_date, end_date, source_path, destination_path):
+def process_date_range(start_date, end_date, logs_path, source_path, destination_path):
     """
     Iterate over all calendar days from start_date to end_date (inclusive) and call
     data_day_processing for each day.
@@ -269,6 +269,8 @@ def process_date_range(start_date, end_date, source_path, destination_path):
         Start date as "YYYY-MM-DD" string or a date/datetime object.
     - end_date: str | datetime.date | datetime.datetime
         End date as "YYYY-MM-DD" string or a date/datetime object.
+    - logs_path: str
+        Path where log files will be saved.
     - source_path: str
         Source path passed to data_day_processing where raw files are located.
     - destination_path: str
@@ -281,7 +283,9 @@ def process_date_range(start_date, end_date, source_path, destination_path):
     # Setup Logging
     now = datetime.now()
     date_time = now.strftime("%Y%m%d_%H%M%S")
-    log_prep_file_name = f"logs/{date_time}_prep.log" #File path to almacenate the logs
+    # Validate that the destination path for the year exists
+    os.makedirs(logs_path, exist_ok=True)
+    log_prep_file_name = f"{logs_path}/{date_time}_prep.log" #File path to almacenate the logs
     logging.basicConfig(
         filename=log_prep_file_name,
         level=logging.DEBUG,
@@ -318,4 +322,4 @@ def process_date_range(start_date, end_date, source_path, destination_path):
             logging.exception(f"Error processing {Year}-{Month}-{Day}: {e}")
         current += timedelta(days=1)
 
-process_date_range("2023-12-29", "2023-12-30", "D:/Popocatepetl/data", "D:/Popocatepetl/processed_data")
+# process_date_range("2023-12-29", "2023-12-30", "D:/Popocatepetl/data", "D:/Popocatepetl/processed_data")
