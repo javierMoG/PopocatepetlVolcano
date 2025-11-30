@@ -74,6 +74,7 @@ def interpolate_hour(trace):
 
     n = len(trace)
     for i in range(n):
+        trace[i].data = trace[i].data.astype(np.float64)
         if i == 0:
             st_final = trace[i]
         else:
@@ -131,7 +132,6 @@ def complete_day(Year, Month, Day, source_path, paths_PPPP):
         else:
             # Validate that we have measurements of component Z
             if len(st) > 1:
-                st.data = st.data.astype(np.float64)  # Ensure data is float64
                 st = interpolate_hour(st)
                 if k == 1:
                     st_final = st
@@ -242,10 +242,13 @@ def data_day_processing(Year, Month, Day, source_path, destination_path):
                         i = i+1
                     else:
                         bandera = False
-                        logging.error("El archivo "+i+" esta incompleto")
+                        logging.error("El archivo "+paths_PPPP[i]+" esta incompleto")
                 else:
                     bandera = False
-                    logging.error("No hay componente Z en el archivo "+i)
+                    if len(st)>1:
+                        logging.error("Hay múltiples mediciones de la componente Z en el archivo "+paths_PPPP[i])
+                    else:
+                        logging.error("No hay componente Z en el archivo "+paths_PPPP[i])
 
             if not(bandera):
                 st_final = complete_day(Year, Month, Day, source_path, paths_PPPP)
