@@ -70,7 +70,7 @@ def plot_signal(tr):
     ax1.set_ylabel('Amplitude')
 
     # Spectrogram
-    tr.spectrogram(wlen=.1*sps, per_lap=0.90, dbscale=True, log=True, axes=ax2)
+    tr.spectrogram(wlen=.1*sps, per_lap=0.50, dbscale=True, log=True, axes=ax2)
     ax2.set_ylabel('Frequency (Hz)')
     ax2.set_ylim((0.1, 50))
 
