@@ -212,8 +212,13 @@ def data_day_processing(Year, Month, Day, source_path, destination_path):
     - Missing hours or incomplete data trigger error logging and fallback to gap-filling.
     """
 
-    paths = os.listdir(source_path+"/"+Year+"/"+Month+"/"+Day)
-    paths_PPPP = [x for x in paths if re.match(r'^{}'.format('CN.PPPP'), x)]
+    try:
+        paths = os.listdir(source_path + "/" + Year + "/" + Month + "/" + Day)
+        paths_PPPP = [x for x in paths if re.match(r'^{}'.format('CN.PPPP'), x)]
+    except FileNotFoundError as e:
+        logging.error(f"Directory not found: {source_path}/{Year}/{Month}/{Day}. Error: {e}")
+        paths_PPPP = []
+
     bandera = True
 
     # Validate that the destination path for the year exists
@@ -324,5 +329,3 @@ def process_date_range(start_date, end_date, logs_path, source_path, destination
         except Exception as e:
             logging.exception(f"Error processing {Year}-{Month}-{Day}: {e}")
         current += timedelta(days=1)
-
-# process_date_range("2023-12-29", "2023-12-30", "D:/Popocatepetl/data", "D:/Popocatepetl/processed_data")
