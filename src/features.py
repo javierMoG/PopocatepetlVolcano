@@ -127,8 +127,12 @@ def freq_index(s_low, s_high, samples):
     ener_low = np.sum(s_low**2) / samples
     ener_high = np.sum(s_high**2) / samples
 
-    # Avoid division by zero by adding a small value to the denominator
-    freq_index = np.log10(ener_high / (ener_low + np.finfo(float).eps))
+    
+    if ener_low > np.finfo(float).eps:
+        freq_index = np.log10(ener_high / ener_low)
+    else:
+        freq_index = np.NAN
+    
     return freq_index
 
 def calculate_features(trace, trace_low, trace_high, window_size_seconds=600, overlap=0.5):
