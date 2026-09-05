@@ -222,3 +222,62 @@ def calculate_features(trace, trace_low, trace_high, window_size_seconds=600, ov
     })
     
     return results_df
+
+
+def calculate_RSAM(trace, window_size_seconds=600, overlap=0.5):
+    """
+    Calculate RSAM from seismic signals using sliding windows with overlap.
+
+    Parameters:
+    - trace: ObsPy Trace object
+        Full bandpass filtered seismic trace.
+    - window_size_seconds: int, optional
+        Window size in seconds (default: 600 = 10 minutes).
+    - overlap: float, optional
+        Overlap fraction between windows (default: 0.5 = 50%).
+
+    Returns:
+    - results_df: pandas.DataFrame
+        DataFrame containing timestamps and calculated features for each window:
+        - timestamp: Center time of each window.
+        - RSAM: The average absolute amplitude of the seismic signal
+    """
+    # Get sampling rate and calculate window size in samples
+    sampling_rate = trace.stats.sampling_rate
+    window_samples = int(window_size_seconds * sampling_rate)
+    
+    # Calculate step size (distance between window starts)
+    step_samples = int(window_samples * (1 - overlap))
+    
+    # Get the signal data
+    signal = trace.data
+    
+    # Initialize lists to store results
+    timestamps = []
+    rsam_values = []
+    
+    # Slide the window through the signal
+    for i in range(0, len(signal) - window_samples + 1, step_samples):
+        # Extract window
+        window = signal[i:i + window_samples]
+        
+        # Calculate timestamp for the center of the window
+        window_center_sample = i + window_samples // 2
+        timestamp = trace.stats.starttime + window_center_sample / sampling_rate
+        
+        # RSAM: The average absolute amplitude of the seismic signal
+        # 1. Remove the DC offset (center the signal around 0)
+        centered_window = window - np.mean(window)
+        rsam = np.mean(np.abs(centered_window))
+        
+        # Store results
+        timestamps.append(timestamp.datetime)
+        rsam_values.append(rsam)
+
+    # Create DataFrame with results
+    results_df = pd.DataFrame({
+        'timestamp': timestamps,
+        'RSAM': rsam_values,
+    })
+    
+    return results_df
